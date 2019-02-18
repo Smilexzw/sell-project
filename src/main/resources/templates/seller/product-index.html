@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <title>商品管理</title>
+
+    <script type="text/javascript" src="jquery-1.7.2.js" th:src="@{/lib/zyupload/jquery-1.7.2.js}"></script>
+
+    <link rel="stylesheet" type="text/css" href="/static/lib/h-ui/css/H-ui.min.css" th:href="@{/lib/h-ui/css/H-ui.min.css}"/>
+    <link rel="stylesheet" type="text/css" href="/static/lib/h-ui.admin/css/H-ui.admin.css" th:href="@{/lib/h-ui.admin/css/H-ui.admin.css}"/>
+    <link rel="stylesheet" type="text/css" href="/static/lib/Hui-iconfont/1.0.8/iconfont.css" th:href="@{/lib/Hui-iconfont/1.0.8/iconfont.css}"/>
+    <link rel="stylesheet" type="text/css" href="/static/lib/h-ui.admin/skin/default/skin.css" th:href="@{/lib/h-ui.admin/skin/default/skin.css}" id="skin" />
+    <link rel="stylesheet" type="text/css" href="/static/lib/h-ui.admin/css/style.css" th:href="@{/lib/h-ui.admin/css/style.css}"/>
+    <link rel="stylesheet" href="zyupload/skins/zyupload-1.0.0.min.css " th:href="@{/lib/zyupload/skins/zyupload-1.0.0.min.css}" type="text/css">
+    <script type="text/javascript" src="zyupload/zyupload.basic-1.0.0.min.js" th:src="@{/lib/zyupload/zyupload.basic-1.0.0.min.js}"></script>
+</head>
+<body>
+
+<div class="page-container">
+    <form class="form form-horizontal" id="form-article-add" >
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">名称：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <!-- 当对象不为空的时候就填写productName -->
+                <input type="text" class="input-text" value="" placeholder="请填写商品的名称" id="productName" name="productName"
+                       th:value=" ${productInfo} ? ${productInfo.productName} : ''">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">价格：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="" placeholder="请填写商品的价格" id="productPrice" name="productPrice"
+                       th:value=" ${productInfo} ? ${productInfo.productPrice} : ''">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">库存：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="" placeholder="请填写商品的库存" id="productStock" name="productStock"
+                       th:value=" ${productInfo} ? ${productInfo.productStock} : ''">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">描述：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="" placeholder="请填写商品的描述" id="productDescription" name="productDescription"
+                       th:value=" ${productInfo} ? ${productInfo.productDescription} : ''">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">分类栏目：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+                    <select name="categoryType" class="select" id="categoryType" th:switch="${result}">
+                        <div th:case="0">
+                            <option th:each="category:${category}"
+                                    th:text="${category.categoryName}"
+                                    th:value="${category.categoryType}"
+                                    th:selected="(${category.categoryType} eq ${productInfo.categoryType} )">热销榜</option>
+                        </div>
+                        <div th:case="1">
+                            <option th:each="category:${category}"
+                                    th:text="${category.categoryName}"
+                                    th:value="${category.categoryType}">热销榜</option>
+                        </div>
+                    </select>
+				</span>
+            </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">图片：</label>
+            <div th:switch="${result}">
+                <div class="formControls col-xs-8 col-sm-9" th:case="0">
+                    <img th:src="${productInfo.productIcon}" width="200px">
+                    <input type="hidden" id="productIcon" name="productIcon" th:value="${productInfo.productIcon}">
+                </div>
+                <div class="formControls col-xs-8 col-sm-9" th:case="1">
+                    <div id="zyupload" class="zyupload" ></div>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" id="productId" name="productId" th:value=" ${productInfo} ? ${productInfo.productId} : ''">
+
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+                <button onClick="submitData();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 提交</button>
+                <button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    function submitData(){
+        $.post("/sell/seller/product/doadd",
+            {
+                productName:$("#productName").val(),
+                productPrice:$("#productPrice").val(),
+                productStock:$("#productStock").val(),
+                productDescription:$("#productDescription").val(),
+                categoryType:$("#categoryType").val(),
+                productId:$("#productId").val(),
+                productIcon:$("#productIcon").val()
+            },
+            function(data){
+                if (data.result != 'success') {
+                    alert(data.result);
+                } else {
+                    alert(data.result);
+                    window.location.replace("/sell/seller/product/list");
+                }
+
+            }
+        );
+    }
+
+</script>
+
+<script type="text/javascript">
+    $(function(){
+        // 初始化插件
+        $("#zyupload").zyUpload({
+            width            :   "100%",                 // 宽度
+            height           :   "200px",                 // 宽度
+            itemWidth        :   "140px",                 // 文件项的宽度
+            itemHeight       :   "115px",                 // 文件项的高度
+            url              :   "/admin/upload/photo",  // 上传文件的路径
+            fileType         :   ["jpg", ,"jpeg", "png","js","exe"],// 上传文件的类型
+            fileSize         :   51200000,                // 上传文件的大小
+            multiple         :   true,                    // 是否可以多个文件上传
+            dragDrop         :   false,                   // 是否可以拖动上传文件
+            tailor           :   false,                   // 是否可以裁剪图片
+            del              :   true,                    // 是否可以删除文件
+            finishDel        :   false,  				  // 是否在上传文件完成后删除预览
+            /* 外部获得的回调接口 */
+            onSelect: function(selectFiles, allFiles){    // 选择文件的回调方法  selectFile:当前选中的文件  allFiles:还没上传的全部文件
+                console.info("当前选择了以下文件：");
+                console.info(selectFiles);
+            },
+            onDelete: function(file, files){              // 删除一个文件的回调方法 file:当前删除的文件  files:删除之后的文件
+                console.info("当前删除了此文件：");
+                console.info(file.name);
+            },
+            onSuccess: function(file, response){          // 文件上传成功的回调方法
+                console.info("此文件上传成功：");
+                console.info(file.name);
+                console.info("此文件上传到服务器地址：");
+                console.info(response);
+                $("#uploadInf").append("<p>上传成功，文件地址是：" + response + "</p>");
+            },
+            onFailure: function(file, response){          // 文件上传失败的回调方法
+                console.info("此文件上传失败：");
+                console.info(file.name);
+            },
+            onComplete: function(response){           	  // 上传完成的回调方法
+                console.info("文件上传完成");
+                console.info(response);
+            }
+        });
+
+    });
+
+</script>
+</body>
+</html>
+

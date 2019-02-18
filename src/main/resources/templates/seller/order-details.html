@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="seller/common :: head"><header th:replace="seller/common :: header"></header>
+
+</head>
+<body>
+    <div class="page-container" style="width: 40%">
+        <table class="table table-border table-bordered table-bg">
+            <thead>
+            <tr class="text-c">
+                <th >订单</th>
+                <th>订单总金额</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="text-c">
+                <td th:text="${orderDTO.orderId}">15486544376822900</td>
+                <td th:text="${orderDTO.orderAmount}">1.0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="page-container">
+        <table class="table table-border table-bordered table-bg">
+            <thead>
+            <tr class="text-c">
+                <th>商品</th>
+                <th>商品名称</th>
+                <th>商品照片</th>
+                <th>价格</th>
+                <th>数量</th>
+                <th>总额</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="text-c" th:each="product:${orderDTO.orderDetailList}">
+                <td th:text="${product.productId}">1548654100581795086</td>
+                <td th:text="${product.productName}">辣子鸡丁</td>
+                <td><img src="@{( ${product.productIcon} )}"></td>
+                <td th:text="${product.productPrice}">价格</td>
+                <td th:text="${product.productQuantity}">1</td>
+                <td th:text="${product.productQuantity * product.productPrice}">0.5</td>
+            </tr>
+
+            </tbody>
+        </table>
+
+        <div class="handler-button" style="margin: auto; padding: 20px" >
+            <!--<button class="btn btn-primary radius">完结订单</button>-->
+            <!--<button class="btn btn-danger radius">取消订单</button>-->
+            <a type="button" th:href="@{/seller/order/finsh(orderId=${orderDTO.orderId})}" class="btn btn-primary radius" th:text="完结订单"></a>
+            <a type="button" th:href="@{/seller/order/cancel(orderId=${orderDTO.orderId})}" class="btn btn-danger btn-sm radius" th:text="取消订单"></a>
+        </div>
+
+    </div>
+</body>
+</html>

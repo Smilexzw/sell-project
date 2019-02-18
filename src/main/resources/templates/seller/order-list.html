@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="seller/common :: head" >
+
+
+</head>
+<link rel="stylesheet" type="text/css" href="/static/lib/h-ui.admin/css/style.css" th:href="@{/css/mypage.css}"/>
+
+<body>
+<div class="page-container">
+    <div class="mt-20">
+        <table class="table table-border table-bordered table-bg table-hover table-sort">
+            <thead>
+            <tr class="text-c">
+                <th>订单</th>
+                <th>姓名</th>
+                <th>手机号</th>
+                <th>地址</th>
+                <th>金额</th>
+                <th>订单状态</th>
+                <th>支付状态</th>
+                <th>创建时间</th>
+                <th width="100" colspan="2">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="text-c" th:each="orderList:${orderDTOPage.content}">
+                <td th:text="${orderList.orderId}">20190128121900</td>
+                <td th:text="${orderList.buyerName}">徐章旺</td>
+                <td th:text="${orderList.buyerPhone}">18379368078</td>
+                <td th:text="${orderList.buyerAddress}">江南商贸城米兰春天</td>
+                <td th:text="${orderList.orderAmount}">19.8</td>
+                <td th:text="${orderList.getOrderStatusEnum().message}">新订单</td>
+                <td th:text="${orderList.getPayStatusEnum().message}">等待支付</td>
+                <td th:text="${orderList.createTime}">2014-6-11 11:11:42</td>
+                <!--th:if="${orderList.getOrderStatusEnum().message eq '完结'}"-->
+                <td>
+                    <a th:href="@{'/seller/order/details?orderId=' + ${orderList.orderId} }" type="button" class="btn btn-primary radius" th:text="详情">详情</a>
+                    <!--<button class="btn btn-primary btn-sm radius " onclick="alert('查新')">详情</button>-->
+                </td>
+                <!--th:if="${orderList.getOrderStatusEnum().message eq '新订单' }"-->
+                <td th:if="${orderList.getOrderStatusEnum().message eq '新订单' }">
+                    <!--<a th:href="@{/seller/order/cancel(orderid=${orderList.orderId})}" th:text="取消订单" style="color: red"></a>-->
+                    <!--<a onclick="cancelOrderById()" th:text="取消订单" style="color: red"></a>-->
+                    <button class="btn btn-warning btn-sm radius" th:onclick="'javascript:cancelOrder('+  ${orderList.orderId} +')'" >取消</button>
+
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="center">
+    <ul class="pagination" >
+        <li>
+            <a  href="#" th:href="@{/seller/order/list}" th:text="首页"></a>
+        </li>
+        <li><a th:if="( ${currentPage} - 1 gt 0)" th:href="@{'/seller/order/list?page=' + ${currentPage - 1} }" >上一页</a></li>
+        <!-- 在前端页面上显示出5条数据 -->
+        <li th:each="i:${#numbers.sequence(1, orderDTOPage.getTotalPages()) } ">
+            <a href="#"  th:text="${i}" th:href="@{/seller/order/list(page=${ i})}"></a>
+        </li>
+        <li><a th:if="( ${currentPage} + 1 le ${orderDTOPage.getTotalPages()})" href="#" th:href="@{'/seller/order/list?page=' + ${currentPage + 1} }">下一页</a></li>
+        <li><a href="#" th:href="@{'/seller/order/list?page=' + ${orderDTOPage.getTotalPages()} }">尾页</a></li>
+    </ul>
+</div>
+
+<div th:replace="seller/common :: footer"></div>
+<script type="text/javascript" src="js/jquery.min.js" th:src="@{/lib/jquery/1.9.1/jquery.min.js}"></script>
+<script type="text/javascript">
+
+
+    function cancelOrder(orderid) {
+        $.ajax({
+            type: "GET",
+            data: {'orderid': orderid},
+            url: "/seller/order/cancel",
+            success: function (databack) {
+//                if (databack.result == 1) {
+//                    alert('删除成功');
+//                } else {
+//                    alert("删除失败");
+//                }
+                alert(databack.msg);
+            },
+            error: function (databack) {
+                alert("连接失败");
+            }
+        });
+    }
+
+
+</script>
+
+
+</body>
+</html>
